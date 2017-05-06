@@ -11,7 +11,8 @@ const mongoose 		= require('./db/mongoose'),
 const express  		= require('express'),
 			bodyParser  = require('body-parser'),
 			app         = express(),
-			{ObjectID}	= require('mongodb');
+			{ObjectID}	= require('mongodb'),
+			_						= require('lodash');
 			
 
 /////***MIDDLEWARE***/////
@@ -77,6 +78,52 @@ app.post('/users', (req, res)=>{
 	}, (e) =>{
 		res.status(400).send(e);
  });
+});
+
+/////PUT ROUTES/////
+
+//Find a todo by ID and update it
+// app.put('/todos/:id', (req, res)=>{
+// 	let id = req.params.id;
+// 	let text = req.body.text;
+// 	if(!ObjectID.isValid(id)) {
+// 		return res.status(404).send("ID is not valid!");
+// 	}
+// 	Todo.findById(id).then((todo)=>{
+// 		if(!todo){
+// 			res.status(404).send('That Todo does not exist');
+// 		} else {
+
+// 			res.status(200).send({todo});
+// 		  }
+// 		}).catch((e)=>{
+// 			res.status(400).send('An error has occured.');
+// 		});
+// });
+
+app.patch('/todos/:id', (req, res)=>{
+	let id = req.params.id;
+	let body = _.pick(req.body, ['text', 'completed']);
+
+	if(!ObjectID.isValid(id)) {
+		return res.status(404).send("ID is not valid!");
+	}
+
+	if(_.isBoolean(body.completed) && body.completed){
+		body.completedAt = new Date().getTime(); 
+	} else {
+		body.completed   = false;
+		body.completedAt = null;
+	}
+	Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo)=>{
+		if(!todo){
+			res.status(404).send('That Todo does not exist');
+		} else {
+			res.status(200).send({todo});
+		  }
+		}).catch((e)=>{
+			res.status(400).send('An error has occured.');
+		});
 });
 
 /////DELETE ROUTES/////
