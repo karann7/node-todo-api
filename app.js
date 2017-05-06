@@ -79,6 +79,25 @@ app.post('/users', (req, res)=>{
  });
 });
 
+/////DELETE ROUTES/////
+
+//Find a todo and delete by ID
+app.delete('/todos/:id', (req, res)=>{
+	let id = req.params.id;
+	if(!ObjectID.isValid(id)) {
+		return res.status(404).send("ID is not valid!");
+	}
+	Todo.findByIdAndRemove(id).then((todo)=>{
+		if(!todo){
+			res.status(404).send('That Todo does not exist');
+		} else {
+			res.status(200).send({todo});
+		  }
+		}).catch((e)=>{
+			res.status(400).send('An error has occured.');
+		});
+});
+
 ////Server Listening////
 app.listen(port, ip, ()=>{
 	console.log(`Server is running on Port: ${port}`);
