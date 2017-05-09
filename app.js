@@ -63,25 +63,26 @@ app.post('/todos', (req, res)=>{
 	//save to the DB
 	todo.save().then((doc)=>{
 		res.status(200).send(doc);
-	}, (e) =>{
+	}).catch((e)=>{
 		res.status(400).send(e);
- });
+	});
 });
 
 //User-POST-route
 app.post('/users', (req, res)=>{
-	var user = new User({
-		email: req.body.email
-	});
+	let body = _.pick(req.body, ['email', 'password']);
+	var user = new User(body);
 	//save to the DB
-	user.save().then((doc)=>{
-		res.status(200).send(doc);
-	}, (e) =>{
+	user.save().then(()=>{
+		return user.generateAuthToken();
+	}).then((token) =>{
+		res.header('x-auth', token).status(200).send(user);
+	}).catch((e)=>{
 		res.status(400).send(e);
- });
+	});
 });
 
-/////PUT ROUTES/////
+/////PUT/PATCH ROUTES/////
 
 app.patch('/todos/:id', (req, res)=>{
 	let id = req.params.id;
