@@ -5,7 +5,7 @@ const mongoose  = require('mongoose'),
 
 //User Model
 // we are using npm validator to make sure email is valid
-//the tokens property refers to login from different devices 
+//the tokens property refers to login from different devices
 var UserSchema = new mongoose.Schema({
 	email: {
 		type: String,
@@ -35,13 +35,14 @@ var UserSchema = new mongoose.Schema({
 		}
 	}]
 });
-
+//Overrides the built in method so that
+// the returned properties are picked off and will only return certain ones
 UserSchema.methods.toJSON = function () {
 	var user = this;
 	var userObject = user.toObject();
 	return _.pick(userObject, ['_id', 'email']);
 };
-
+//Runs the jwt function to hash a token, includes a secret access.
 UserSchema.methods.generateAuthToken = function(){
 	var user = this;
   var access = "auth";
@@ -53,18 +54,20 @@ UserSchema.methods.generateAuthToken = function(){
   	return token;
   });
 };
+UserSchema.statics.findByToken = function(token){
+	var User = this;
+	var decoded;
+	try {
+		decoded = jwt.verify(token, 'abc123')
+	} catch (e) {
+		return Promise.reject();
+	}
+	return User.findOne({
+		'_id': decoded._id,
+		'tokens.token': token,
+		'tokens.access': 'auth'
+	});
+};
 
 var User = mongoose.model('User', UserSchema);
-
-// how to make a new User
-// var user = new User({
-// 	email: "booooom."
-// });
-
-// how to save a user to the DB
-// user.save().then((doc)=>{
-// 	console.log('Saved todo', doc);
-// }, (e) =>{
-// 	console.log('Unable to save todo');
-// });
 module.exports  = User;

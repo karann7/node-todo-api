@@ -3,18 +3,19 @@
 
 //local
 require('./config/config');
-const mongoose 		= require('./db/mongoose'),
-			User     		= require('./db/models/user'),
-			Todo     		= require('./db/models/todo'),
-			port				= process.env.PORT;
+const authenticate  = require('./middleware/authenticate'),
+			User     			= require('./db/models/user'),
+			Todo     			= require('./db/models/todo'),
+			port					= process.env.PORT;
 
 //npm
 const express  		= require('express'),
+		  mongoose 		= require('./db/mongoose'),
 			bodyParser  = require('body-parser'),
 			app         = express(),
 			{ObjectID}	= require('mongodb'),
 			_						= require('lodash');
-			
+
 
 /////***MIDDLEWARE***/////
 app.use(bodyParser.json());
@@ -53,6 +54,10 @@ app.get('/todos/:id', (req, res)=>{
 		});
 });
 
+//GET User by token and verify
+app.get('/users/me', authenticate, (req, res)=>{
+	res.send(req.user);
+});
 /////POST ROUTES/////
 
 //Todo-POST-route
@@ -93,7 +98,7 @@ app.patch('/todos/:id', (req, res)=>{
 	}
 
 	if(_.isBoolean(body.completed) && body.completed){
-		body.completedAt = new Date().getTime(); 
+		body.completedAt = new Date().getTime();
 	} else {
 		body.completed   = false;
 		body.completedAt = null;
