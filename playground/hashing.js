@@ -13,7 +13,7 @@
 // };
 
 // var token = {
-// 	data, 
+// 	data,
 // 	hash: SHA256(JSON.stringify(data) + "somesecret").toString()
 // };
 
@@ -24,17 +24,33 @@
 // } else {
 // 	console.log('Data was changed do not trust');
 // }
+// 		***Singing and verifying thigns using JWT
+// const jwt = require('jsonwebtoken');
+// var data = {
+// 	id: 4,
+// 	username: "Karan",
+// 	password: "singh"
+// };
+//
+// var token = jwt.sign(data.password, '123abc');
+//
+// console.log(token);
+//
+// var decoded = jwt.verify(token, '123abc');
+// console.log(decoded);
 
-const jwt = require('jsonwebtoken');
-var data = {
-	id: 4,
-	username: "Karan",
-	password: "singh"
-};
+// *****Learning to use bcrypt.js
+const bcrypt = require('bcryptjs');
+const password = "123pokemon";
+console.log(password);
+bcrypt.genSalt(10, (err, salt)=>{
+	console.log(salt);
+	bcrypt.hash(password, salt, (err, hash)=>{
+		console.log(hash);
+	});
+});
+var hashed = "$2a$10$Vc3yDjHAjR/qqNR9r1nFOemEls.QcsvZx1bPGMalM9NmD4to1FhS2";
 
-var token = jwt.sign(data.password, '123abc');
-
-console.log(token);
-
-var decoded = jwt.verify(token, '123abc');
-console.log(decoded);
+bcrypt.compare(password, hashed, (err, res)=>{
+	console.log(res);
+});

@@ -1,7 +1,8 @@
 const mongoose  = require('mongoose'),
 			validator = require('validator'),
 			jwt				= require('jsonwebtoken'),
-			_  				= require('lodash');
+			_  				= require('lodash'),
+			bcrypt		= require('bryptjs');
 
 //User Model
 // we are using npm validator to make sure email is valid

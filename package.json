@@ -1,6 +1,6 @@
 {
   "name": "node-todo-api",
-  "version": "1.0.0",
+  "version": "1.0.0", 
   "description": "another todo app",
   "main": "app.js",
   "scripts": {
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/karann7/node_training#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
     "crypto-js": "^3.1.9-1",
     "express": "^4.15.2",
