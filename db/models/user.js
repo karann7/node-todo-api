@@ -2,7 +2,7 @@ const mongoose  = require('mongoose'),
 			validator = require('validator'),
 			jwt				= require('jsonwebtoken'),
 			_  				= require('lodash'),
-			bcrypt		= require('bryptjs');
+			bcrypt		= require('bcryptjs');
 
 //User Model
 // we are using npm validator to make sure email is valid
@@ -69,6 +69,22 @@ UserSchema.statics.findByToken = function(token){
 		'tokens.access': 'auth'
 	});
 };
+UserSchema.pre('save', function(next){
+	var user = this;
+	if(user.isModified('password')) {
+		bcrypt.genSalt(10, (err, salt)=>{
+			bcrypt.hash(user.password, salt, (err, hash)=>{
+				user.password = hash;
+					next();
+			});
+		});
+	} else {
+		next();
+	}
+});
+
+
+
 
 var User = mongoose.model('User', UserSchema);
 module.exports  = User;
