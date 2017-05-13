@@ -47,4 +47,4 @@ const populateUsers = (done) =>{
 };
 
 
-module.exports = {todos, populateTodos, populateUsers};
+module.exports = {todos, populateTodos, populateUsers, users};

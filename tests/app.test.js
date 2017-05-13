@@ -4,7 +4,7 @@ const expect 		= require('expect'),
 			Todo  		= require('../db/models/todo'),
 			User 			= require('../db/models/user'),
 		 {ObjectID} = require('mongodb'),
-		 {todos, populateTodos, populateUsers} = require('./seed/seed.js');
+		 {todos, populateTodos, populateUsers, users} = require('./seed/seed.js');
 
  beforeEach(populateTodos);
  beforeEach(populateUsers);
@@ -132,33 +132,34 @@ describe("DELETE /todos:id", ()=>{
 //Tests for the Patch route
 
 describe('PATCH /todos/id', (done)=>{
-it('should clear completedAt when todo is not completed', (done)=>{
-	var hexId = todos[0]._id.toHexString();
-	var text = "This should be the new text";
-	//grab id of first item
-	//update text, set completed true
-	//200, res.body has text body sent changed and completed is true
-	//completedSt is a number
-	request(app)
-	.patch(`/todos/${hexId}`)
-	.send({
-		completed: true,
-		text: text
-	})
-	.expect(200)
-	.expect((res)=>{
-		expect(res.body.todo.text).toBe(text);
-		expect(res.body.todo.completed).toBe(true);
-		expect(res.body.todo.completedAt).toBeA('number');
-	})
-	.end(done);
-});
-it('should clear completedAt when todo is not completed', (done) =>{
-//grab id of second todo item
-//update text, set completed to false
-//200
-//text is changed, completed false, completedAt is null .toNotExist
-var hexId = todos[1]._id.toHexString();
+	it('when todo is complete this sets the completedAt value', (done)=>{
+		var hexId = todos[0]._id.toHexString();
+		var text = "This should be the new text";
+		//grab id of first item
+		//update text, set completed true
+		//200, res.body has text body sent changed and completed is true
+		//completedSt is a number
+		request(app)
+		.patch(`/todos/${hexId}`)
+		.send({
+			completed: true,
+			text: text
+		})
+		.expect(200)
+		.expect((res)=>{
+			expect(res.body.todo.text).toBe(text);
+			expect(res.body.todo.completed).toBe(true);
+			expect(res.body.todo.completedAt).toBeA('number');
+		})
+		.end(done);
+	});
+
+	it('should clear completedAt when todo is not completed', (done) =>{
+	//grab id of second todo item
+	//update text, set completed to false
+	//200
+	//text is changed, completed false, completedAt is null .toNotExist
+	var hexId = todos[1]._id.toHexString();
 	var text = "This should be the new text";
 	request(app)
 	.patch(`/todos/${hexId}`)
@@ -173,7 +174,82 @@ var hexId = todos[1]._id.toHexString();
 		expect(res.body.todo.completedAt).toNotExist();
 	})
 	.end(done);
-
-
+	});
 });
+
+//Testing the token and auth
+
+describe('GET /users/me', ()=>{
+	it('should return user if authenticated', (done)=>{
+		request(app)
+		.get('/users/me')
+		.set('x-auth', users[0].tokens[0].token)
+		.expect(200)
+		.expect((res)=>{
+			expect(res.body._id).toBe(users[0]._id.toHexString());
+			expect(res.body.email).toBe(users[0].email);
+		})
+		.end(done);
+	});
+
+	it('Should return a 401 is no auth', (done)=>{
+		request(app)
+		.get('/users/me')
+		.expect(401)
+		.expect((res)=>{
+			expect(res.body).toEqual({});
+		})
+		.end(done);
+	});
+});
+
+describe('POST /users', () =>{
+	it('should create a user', (done)=>{
+		var email = "karannnn@icloud.com";
+		var password = "87654321";
+
+		request(app)
+		.post('/users')
+		.send({email, password})
+		.expect(200)
+		.expect((res)=>{
+			expect(res.headers['x-auth']).toExist();
+			expect(res.body._id).toExist();
+			expect(res.body.email).toBe(email);
+		})
+		.end((err)=>{
+			if(err){
+			return done(err);
+			} else {
+				User.findOne({email}).then((user) =>{
+					expect(user).toExist();
+					expect(user.password).toNotBe(password);
+					done();
+				});
+			}
+		});
+	});
+	it('should return validation errors if req invalid', (done) =>{
+		request(app)
+		.post('/users')
+		.send({
+			username: "hehe",
+			password: "87654321"
+		})
+		.expect(400)
+		.expect((res)=>{
+			expect(res.body.errors).toExist();
+		})
+		.end(done);
+	});
+	it('should not create user for duplicate email', (done) =>{
+		request(app)
+		.post('/users')
+		.send({
+			email: users[0].email,
+			password: users[0].password
+		})
+		.expect(400)
+		.end(done);
+	});
 });
