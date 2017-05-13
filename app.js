@@ -145,7 +145,14 @@ app.delete('/todos/:id', (req, res)=>{
 			res.status(400).send('An error has occured.');
 		});
 });
-
+//delete auth token --logout
+app.delete('/users/me/token', authenticate, (req, res) => {
+	req.user.removeToken(req.token).then(() => {
+		res.status(200).send();
+	}, ()=>{
+		res.status(400).send();
+	});
+});
 ////Server Listening////
 app.listen(port, ()=>{
 	console.log(`Server is running on Port: ${port}`);
