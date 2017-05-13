@@ -3,24 +3,11 @@ const expect 		= require('expect'),
 			app   		= require('../app'),
 			Todo  		= require('../db/models/todo'),
 			User 			= require('../db/models/user'),
-		 {ObjectID} = require('mongodb');
+		 {ObjectID} = require('mongodb'),
+		 {todos, populateTodos, populateUsers} = require('./seed/seed.js');
 
-		const todos = [{
-			_id: new ObjectID(),
-			text: "first todo"
-		}, {
-			_id: new ObjectID(),
-			text: "second todo",
-			completed: true,
-			completedAt: 333
-		}];
-//Seeds the DB with exactly 2 todos before each test
- beforeEach((done)=>{
- 	Todo.remove({}).then(()=> {
- 		return Todo.insertMany(todos);
- 	}).then(()=> done());
- });
-
+ beforeEach(populateTodos);
+ beforeEach(populateUsers);
 //Tests the post routes, 1 test sends info, the other does not.
 describe('POST /todos', ()=>{
 	it('should create a new todo', (done)=>{
