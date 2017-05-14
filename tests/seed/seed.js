@@ -18,15 +18,21 @@ const users = [{
  _id: userTwoId,
   email: 'madison@gmail.com',
   password: '123pokemon',
+  tokens: [{
+	  access: 'auth',
+	  token: jwt.sign({_id: userTwoId, access: 'auth'}, 'abc123').toString()
+  }]
 }];
 
 /// TODOS ///
 const todos = [{
 	_id: new ObjectID(),
-	text: "first todo"
+	text: "first todo",
+  _creator: userOneId
 }, {
 	_id: new ObjectID(),
 	text: "second todo",
+  _creator: userTwoId,
 	completed: true,
 	completedAt: 333
 }];
