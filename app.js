@@ -6,15 +6,15 @@ require('./config/config');
 const authenticate  = require('./middleware/authenticate'),
 			User     			= require('./db/models/user'),
 			Todo     			= require('./db/models/todo'),
-			port					= process.env.PORT;
+			port				= process.env.PORT;
 
 //npm
 const express  		= require('express'),
-		  mongoose 		= require('./db/mongoose'),
-			bodyParser  = require('body-parser'),
-			app         = express(),
-			{ObjectID}	= require('mongodb'),
-			_						= require('lodash');
+		  	mongoose 		= require('./db/mongoose'),
+			bodyParser  		= require('body-parser'),
+			app         		= express(),
+			{ObjectID}		= require('mongodb'),
+			_			= require('lodash');
 
 
 /////***MIDDLEWARE***/////
